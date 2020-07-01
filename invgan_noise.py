@@ -5,6 +5,7 @@ from losses import PerceptualLoss
 from torch import optim
 from advertorch.utils import NormalizeByChannelMeanStd
 from tensorflow.keras.preprocessing import image
+from armory.data.utils import maybe_download_weights_from_s3
 import numpy as np
 import torch
 import math
@@ -119,14 +120,16 @@ class InvGAN(Preprocessor):
 
         # setup generator
         self.generator = Generator(256, 512, 8)
-        self.generator.load_state_dict(torch.load(gan_ckpt)['g_ema'])
+        #self.generator.load_state_dict(torch.load(gan_ckpt)['g_ema'])
+        self.generator.load_state_dict(torch.load(maybe_download_weights_from_s3(gan_ckpt))['g_ema'])
         self.generator.eval()
         self.generator.cuda()
         self.deprocess_layer = NormalizeByChannelMeanStd([-1., -1., -1.], [2., 2., 2.]).cuda()
 
         # setup encoder
         self.encoder = Encoder()
-        self.encoder.load_state_dict(torch.load(encoder_ckpt)['netE'])
+        #self.encoder.load_state_dict(torch.load(encoder_ckpt)['netE'])
+        self.encoder.load_state_dict(torch.load(maybe_download_weights_from_s3(encoder_ckpt))['netE'])
         self.encoder.eval()
         self.encoder.cuda()
 
